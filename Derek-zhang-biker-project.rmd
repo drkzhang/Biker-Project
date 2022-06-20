@@ -1,0 +1,81 @@
+---
+title: "Biker_project"
+author: "derek"
+date: '2022-06-20'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+This document will receive the sql export as an input and draw some graphs that could lead to insights of the current situations and markets or the biking company
+
+
+## Importing the data and activating library
+
+You can activate libraries after installing packages, for example:
+
+```{r library, eval=FALSE}
+library(tidyverse)
+library(ggplot2)
+```
+
+Then we import the data and specify the column names
+```{r import}
+library(tidyverse)
+test1 <-read_csv("test2.csv", col_names = c("rideid", "ridetype", "membership","time","dayofweek"))
+```
+
+Check the structure of the data frame
+
+```{r head1}
+head(test1)
+colnames(test1)
+```
+
+
+## Plotting some graphs
+See the relationship between ride type and membership
+```{r head}
+ggplot(data = test1) +
+  geom_bar(mapping= aes(x = membership,fill = ridetype))
+```
+
+See the average time of each membership
+Average ride time of casual members is twice of formal members
+
+
+```{r average time}
+ggplot(test1, aes(x = factor(membership), y = time)) + 
+  geom_bar(stat = "summary", fun = "mean") +
+   scale_y_continuous("time in minutes")
+```
+
+Let's see the average time of ride by different days of the week and membership type
+
+```{r group}
+newtest <-test1 %>% group_by(membership,dayofweek) %>% drop_na() %>% 
+  summarize(mean1 =mean(time))
+ggplot(data = newtest) +
+  geom_smooth(mapping = aes(x = dayofweek,
+                           y = mean1,linetype = membership))
+```
+
+As we can see, monday and Sunday for both members and non-members are the days with the longest ride time.
+
+
+
+Finally, let's investigate the relationship between riding habits on different days by membership
+
+
+```{r group1}
+ggplot(data = test1) +
+  geom_bar(mapping= aes(x = dayofweek,fill  = membership)) + facet_wrap(~membership)
+
+```
+
+As we can see from the graph as well as the sql query, casual members outweigh formal members in Monday and Sunday.
+Possible promotion can apply to these days to turn casual into members
